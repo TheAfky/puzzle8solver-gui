@@ -25,12 +25,17 @@ pub const SolutionInfoPanel = struct {
 
         _ = c.ImGui_BeginChild("InfoPanel", .{ .x = w, .y = h }, 0, 0);
 
-        var buf: [64]u8 = undefined;
-        const text_nodes = std.fmt.bufPrintZ(&buf, "nodes: {d}", .{self.nodes_count}) catch unreachable;
+        var buf_nodes: [32]u8 = undefined;
+        var buf_steps: [32]u8 = undefined;
+
+        const text_nodes =
+            std.fmt.bufPrintZ(&buf_nodes, "nodes: {d}", .{self.nodes_count}) catch unreachable;
         _ = c.ImGui_Text(text_nodes.ptr);
 
-        c.ImGui_SameLine(); // make next text appear right next to the previous
-        const text_steps = std.fmt.bufPrintZ(&buf, "steps: {d}", .{self.steps_count}) catch unreachable;
+        c.ImGui_SameLine();
+
+        const text_steps =
+            std.fmt.bufPrintZ(&buf_steps, "steps: {d}", .{self.steps_count}) catch unreachable;
         _ = c.ImGui_Text(text_steps.ptr);
 
         c.ImGui_EndChild();

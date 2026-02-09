@@ -55,10 +55,15 @@ pub const StepsPanel = struct {
 
     pub fn clearBoards(self: *Self) void {
         self.boards.clearAndFree(self.allocator);
+        self.selected_step = 0;
     }
 
     pub fn appendBoard(self: *Self, board: Board(3, 3)) !void {
         try self.boards.append(self.allocator, board);
+        if (self.selected_board[0] == 0 and self.selected_board[1] == 0) {
+            self.selected_board = self.boards.items[0];
+            self.selected_step = 0;
+        }
     }
 
     pub fn deinit(self: *Self) void {

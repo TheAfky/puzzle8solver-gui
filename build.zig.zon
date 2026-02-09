@@ -1,6 +1,6 @@
 .{
     .name = .puzzle8solver,
-    .version = "0.0.0",
+    .version = "0.9.0",
     .dependencies = .{
         .cimgui_zig = .{
             .url = "git+https://github.com/tiawl/cimgui.zig#f01bdb468bff3f99c0addad5a8f2538f0e6701ae",

@@ -34,7 +34,7 @@ pub const App = struct {
     procs: gl.ProcTable,
     window_width: c_int,
     window_height: c_int,
-    scaling: f16,
+    scaling: f32,
 
     main_menu: MainMenu,
     new_solve_window: NewSolveWindow,
@@ -42,7 +42,7 @@ pub const App = struct {
     board_panel: BoardPanel,
     solution_info_panel: SolutionInfoPanel,
 
-    pub fn init(allocator: std.mem.Allocator, scaling: f16) !App {
+    pub fn init(allocator: std.mem.Allocator, scaling: f32) !App {
         var self: Self = undefined;
         self.allocator = allocator;
         self.window_width = @intFromFloat(480 * scaling);
@@ -54,9 +54,9 @@ pub const App = struct {
 
         self.main_menu = MainMenu.init();
         self.steps_panel = try StepsPanel.init(allocator);
-        self.new_solve_window = NewSolveWindow.init(self.steps_panel);
-        self.board_panel = BoardPanel.init(self.board_panel.active_board, self.scaling);
         self.solution_info_panel = SolutionInfoPanel.init(0, 0, self.scaling);
+        self.new_solve_window = NewSolveWindow.init(self.allocator, &self.steps_panel, &self.solution_info_panel);
+        self.board_panel = BoardPanel.init(self.board_panel.active_board, self.scaling);
 
         return self;
     }
@@ -120,6 +120,7 @@ pub const App = struct {
     }
 
     pub fn run(self: *Self) !void {
+        self.new_solve_window.updatePointers(&self.steps_panel, &self.solution_info_panel);
         while (c.glfwWindowShouldClose(self.window) != c.GLFW_TRUE) {
             c.glfwPollEvents();
             newFrame();
@@ -132,7 +133,7 @@ pub const App = struct {
             _ = c.ImGui_Begin("##Main", 0, c.ImGuiWindowFlags_NoDecoration | c.ImGuiWindowFlags_NoMove | c.ImGuiWindowFlags_NoBringToFrontOnFocus);
 
             self.main_menu.draw();
-            self.new_solve_window.draw(&self.main_menu.show_new_solve_window, self.scaling);
+            try self.new_solve_window.draw(&self.main_menu.show_new_solve_window, self.scaling);
 
             CreditsWindow.draw(&self.main_menu.show_credits_window, self.scaling);
 
@@ -141,7 +142,7 @@ pub const App = struct {
             self.board_panel.setBoard(self.steps_panel.selected_board);
             self.board_panel.draw(vw / 3 + 5, 24 * self.scaling, vw / 3 * 2, vh - 45 - 35, vw / (100 * self.scaling));
 
-            if (!(self.steps_panel.selected_board[0] == 1) and !(self.steps_panel.selected_board[1] == 0))
+            if (!(self.steps_panel.selected_board[0] == 0 and self.steps_panel.selected_board[1] == 0))
                 self.solution_info_panel.draw(vw / 3 + 5, vh - 24 * self.scaling, vw / 3 * 2, 35);
 
             c.ImGui_End();
