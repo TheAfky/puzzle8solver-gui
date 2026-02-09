@@ -6,14 +6,14 @@ const c = @cImport({
 
 pub const NewSolveWindow = struct {
     const Self = @This();
-    start_buf: [64]u8,
-    end_buf: [64]u8,
+    start_buf: [18]u8,
+    end_buf: [18]u8,
     selected_solver: i32,
 
     pub fn init() Self {
         return Self{
-            .start_buf = [_]u8{0} ** 64,
-            .end_buf   = [_]u8{0} ** 64,
+            .start_buf = [_]u8{0} ** 18,
+            .end_buf   = [_]u8{0} ** 18,
             .selected_solver = 0,
         };
     }
