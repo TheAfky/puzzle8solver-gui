@@ -6,5 +6,6 @@ pub fn main() !void {
     defer _ = gpa.deinit();
     const allocator = gpa.allocator();
     var app = try App.init(allocator, 1.5);
+    defer app.deinit();
     try app.run();
 }

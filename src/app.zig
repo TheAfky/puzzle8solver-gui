@@ -4,6 +4,11 @@ const gl = @import("gl");
 const MainMenu = @import("components/main_menu.zig").MainMenu;
 const NewSolveWindow = @import("components/new_solve_window.zig").NewSolveWindow;
 const CreditsWindow = @import("components/credits_window.zig").CreditsWindow;
+const StepsPanel = @import("components/steps_panel.zig").StepsPanel;
+const BoardPanel = @import("components/board_panel.zig").BoardPanel;
+const SolutionInfoPanel = @import("components/solution_info_panel.zig").SolutionInfoPanel;
+
+const Board = @import("puzzle8solver").Board;
 
 const c = @cImport({
     @cDefine("GLFW_INCLUDE_NONE", "1");
@@ -33,6 +38,9 @@ pub const App = struct {
 
     main_menu: MainMenu,
     new_solve_window: NewSolveWindow,
+    steps_panel: StepsPanel,
+    board_panel: BoardPanel,
+    solution_info_panel: SolutionInfoPanel,
 
     pub fn init(allocator: std.mem.Allocator, scaling: f16) !App {
         var self: Self = undefined;
@@ -45,7 +53,10 @@ pub const App = struct {
         try initializeImGui(&self);
 
         self.main_menu = MainMenu.init();
-        self.new_solve_window = NewSolveWindow.init();
+        self.steps_panel = try StepsPanel.init(allocator);
+        self.new_solve_window = NewSolveWindow.init(self.steps_panel);
+        self.board_panel = BoardPanel.init(self.board_panel.active_board, self.scaling);
+        self.solution_info_panel = SolutionInfoPanel.init(0, 0, self.scaling);
 
         return self;
     }
@@ -81,8 +92,9 @@ pub const App = struct {
         _ = c.cImGui_ImplGlfw_InitForOpenGL(self.window, true);
         _ = c.cImGui_ImplOpenGL3_InitEx(GLSL_VERSION);
 
-        // c.ImGui_StyleColorsDark(null);
-        c.ImGui_StyleColorsLight(null);
+        // c.ImGui_StyleColorsClassic(null);
+        c.ImGui_StyleColorsDark(null);
+        // c.ImGui_StyleColorsLight(null);
 
         const style = c.ImGui_GetStyle();
         style.*.FontScaleDpi = self.scaling;
@@ -91,19 +103,20 @@ pub const App = struct {
 
     pub fn deinit(self: *Self) void {
         deinitializeGlfwOpenGl(self);
-        deinitializeImGui(self);
+        deinitializeImGui();
+        self.steps_panel.deinit();
     }
 
     fn deinitializeGlfwOpenGl(self: *Self) void {
-        gl.makeProcTableCurrent(null);
+        c.cImGui_ImplGlfw_Shutdown();
+        c.cImGui_ImplOpenGL3_Shutdown();
         c.glfwDestroyWindow(self.window);
+        gl.makeProcTableCurrent(null);
         c.glfwTerminate();
     }
 
     fn deinitializeImGui() void {
         c.ImGui_DestroyContext(null);
-        c.cImGui_ImplGlfw_Shutdown();
-        c.cImGui_ImplOpenGL3_Shutdown();
     }
 
     pub fn run(self: *Self) !void {
@@ -112,13 +125,24 @@ pub const App = struct {
             newFrame();
 
             const viewport = c.ImGui_GetMainViewport();
+            const vw = viewport.*.Size.x;
+            const vh = viewport.*.Size.y;
             c.ImGui_SetNextWindowPos(viewport.*.WorkPos, 0);
             c.ImGui_SetNextWindowSize(viewport.*.WorkSize, 0);
             _ = c.ImGui_Begin("##Main", 0, c.ImGuiWindowFlags_NoDecoration | c.ImGuiWindowFlags_NoMove | c.ImGuiWindowFlags_NoBringToFrontOnFocus);
 
             self.main_menu.draw();
             self.new_solve_window.draw(&self.main_menu.show_new_solve_window, self.scaling);
+
             CreditsWindow.draw(&self.main_menu.show_credits_window, self.scaling);
+
+            self.steps_panel.draw(5, 24 * self.scaling, vw / 3, vh - 45);
+
+            self.board_panel.setBoard(self.steps_panel.selected_board);
+            self.board_panel.draw(vw / 3 + 5, 24 * self.scaling, vw / 3 * 2, vh - 45 - 35, vw / (100 * self.scaling));
+
+            if (!(self.steps_panel.selected_board[0] == 1) and !(self.steps_panel.selected_board[1] == 0))
+                self.solution_info_panel.draw(vw / 3 + 5, vh - 24 * self.scaling, vw / 3 * 2, 35);
 
             c.ImGui_End();
 

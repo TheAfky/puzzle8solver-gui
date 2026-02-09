@@ -1,5 +1,7 @@
 const std = @import("std");
 
+const StepsPanel = @import("steps_panel.zig").StepsPanel;
+
 const c = @cImport({
     @cInclude("dcimgui.h");
 });
@@ -9,12 +11,14 @@ pub const NewSolveWindow = struct {
     start_buf: [18]u8,
     end_buf: [18]u8,
     selected_solver: i32,
+    steps_panel: StepsPanel,
 
-    pub fn init() Self {
+    pub fn init(steps_panel: StepsPanel) Self {
         return Self{
             .start_buf = [_]u8{0} ** 18,
             .end_buf   = [_]u8{0} ** 18,
             .selected_solver = 0,
+            .steps_panel = steps_panel,
         };
     }
 
