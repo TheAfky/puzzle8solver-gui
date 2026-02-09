@@ -1,6 +1,10 @@
 const std = @import("std");
 const gl = @import("gl");
 
+const MainMenu = @import("components/main_menu.zig").MainMenu;
+const NewSolveWindow = @import("components/new_solve_window.zig").NewSolveWindow;
+const CreditsWindow = @import("components/credits_window.zig").CreditsWindow;
+
 const c = @cImport({
     @cDefine("GLFW_INCLUDE_NONE", "1");
     @cInclude("GLFW/glfw3.h");
@@ -27,6 +31,9 @@ pub const App = struct {
     window_height: c_int,
     scaling: f16,
 
+    main_menu: MainMenu,
+    new_solve_window: NewSolveWindow,
+
     pub fn init(allocator: std.mem.Allocator, scaling: f16) !App {
         var self: Self = undefined;
         self.allocator = allocator;
@@ -36,6 +43,9 @@ pub const App = struct {
 
         try initializeGlfwOpenGl(&self);
         try initializeImGui(&self);
+
+        self.main_menu = MainMenu.init();
+        self.new_solve_window = NewSolveWindow.init();
 
         return self;
     }
@@ -47,7 +57,7 @@ pub const App = struct {
         c.glfwWindowHint(c.GLFW_CONTEXT_VERSION_MAJOR, GL_CONTEXT_MAJOR);
         c.glfwWindowHint(c.GLFW_CONTEXT_VERSION_MINOR, GL_CONTEXT_MINOR);
 
-        self.window = c.glfwCreateWindow(self.window_width, self.window_height, "Puzzle8solver", null, null) orelse return error.WindowCreationFailed;
+        self.window = c.glfwCreateWindow(self.window_width, self.window_height, "Puzzle 8 Solver", null, null) orelse return error.WindowCreationFailed;
 
         c.glfwMakeContextCurrent(self.window);
         c.glfwSetWindowSizeLimits(self.window, self.window_width, self.window_height, -1, -1);
@@ -100,6 +110,17 @@ pub const App = struct {
         while (c.glfwWindowShouldClose(self.window) != c.GLFW_TRUE) {
             c.glfwPollEvents();
             newFrame();
+
+            const viewport = c.ImGui_GetMainViewport();
+            c.ImGui_SetNextWindowPos(viewport.*.WorkPos, 0);
+            c.ImGui_SetNextWindowSize(viewport.*.WorkSize, 0);
+            _ = c.ImGui_Begin("##Main", 0, c.ImGuiWindowFlags_NoDecoration | c.ImGuiWindowFlags_NoMove | c.ImGuiWindowFlags_NoBringToFrontOnFocus);
+
+            self.main_menu.draw();
+            self.new_solve_window.draw(&self.main_menu.show_new_solve_window, self.scaling);
+            CreditsWindow.draw(&self.main_menu.show_credits_window, self.scaling);
+
+            c.ImGui_End();
 
             c.ImGui_Render();
             drawFrame(self);
