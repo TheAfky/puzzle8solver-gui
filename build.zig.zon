@@ -1,0 +1,25 @@
+.{
+    .name = .puzzle8solver,
+    .version = "0.0.0",
+    .dependencies = .{
+        .cimgui_zig = .{
+            .url = "git+https://github.com/tiawl/cimgui.zig#f01bdb468bff3f99c0addad5a8f2538f0e6701ae",
+            .hash = "cimgui_zig-1.0.0-2Xubkgg_WACvVJaMZRHJg0RnijamaDxH2bMZtpdY8x7u",
+        },
+        .puzzle8solver = .{
+            .url = "git+https://github.com/theafky/puzzle8solver#a1d3f943ab8057d31d88e383f73593f39e5c0470",
+            .hash = "puzzle8solver-1.0.0-TtsUrUUqAACx4R0C_Cs_bDDbYM_1fB_YS0X-__GFK6DL",
+        },
+    },
+    .fingerprint = 0x5c86a8c69d4495aa,
+    .minimum_zig_version = "0.15.1",
+
+    .paths = .{
+        "build.zig",
+        "resources",
+        "build.zig.zon",
+        "src",
+        "LICENSE",
+        "README.md",
+    },
+}
