@@ -26,7 +26,7 @@ pub const NewSolveWindow = struct {
         return Self{
             .allocator = allocator,
             .start_buf = [_]u8{0} ** 18,
-            .end_buf = [_]u8{0} ** 18,
+            .end_buf = [_]u8{ '1', ',', '2', ',', '3', ',', '4', ',', '5', ',', '6', ',', '7', ',', '8', ',', '0', 0 },
             .selected_solver = 0,
             .steps_panel = steps_panel,
             .solution_info_panel = solution_info_panel,
@@ -96,7 +96,7 @@ pub const NewSolveWindow = struct {
                     }
                     return err;
                 };
-                defer solution.moves.deinit(self.allocator);
+                defer solution.deinit();
                 self.solution_info_panel.setCounts(solution.number_of_nodes, solution.moves.items.len);
                 self.steps_panel.clearBoards();
                 try self.steps_panel.appendBoard(start_board);
