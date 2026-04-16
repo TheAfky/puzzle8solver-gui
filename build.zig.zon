@@ -1,17 +1,17 @@
 .{
     .name = .puzzle8solver_gui,
-    .version = "1.0.3",
+    .version = "1.0.4",
     .dependencies = .{
         .cimgui_zig = .{
             .url = "git+https://github.com/tiawl/cimgui.zig#f01bdb468bff3f99c0addad5a8f2538f0e6701ae",
             .hash = "cimgui_zig-1.0.0-2Xubkgg_WACvVJaMZRHJg0RnijamaDxH2bMZtpdY8x7u",
         },
         .puzzle8solver = .{
-            .url = "git+https://github.com/TheAfky/puzzle8solver#c7104ea043f71cee12f62185ee04d17fb5fda8a9",
+            .url = "git+https://codeberg.org/TheAfky/puzzle8solver.git#c7104ea043f71cee12f62185ee04d17fb5fda8a9",
             .hash = "puzzle8solver-1.0.1-TtsUrf0rAADdKG6KmBA1cbkZmrpjV0E4xI43Man7BrSR",
         },
     },
-    .fingerprint = 0x5c86a8c69d4495aa,
+    .fingerprint = 0x12ddd6126d6f0eee,
     .minimum_zig_version = "0.15.1",
 
     .paths = .{
